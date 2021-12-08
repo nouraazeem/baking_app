@@ -1,4 +1,4 @@
-WELCOME!
+                          WELCOME!
 
 This is my baking app where I am going to build an RShiny app to:
 1. Store my recipes that I have made and are yummy
