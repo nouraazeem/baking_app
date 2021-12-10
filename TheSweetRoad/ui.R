@@ -3,7 +3,7 @@
 #   This is the UI code for The Sweet Road Baking Web App. This script
 # will contain all of the UI elements needed to create the web app.
 # The aforementioned needed UI elements are as follow:
-# 1.
+# 1. noura pls fix and come back and add proper roxygen ok?
 #
 #
 #
@@ -19,10 +19,10 @@ shinyUI(fluidPage(
     # Adding a side selection menu ----
     sidebarLayout(
         
-        # Sidebar Panel for inputs ----
+        # Sidebar Panel for basic inputs such as which dessert you are picking, which ingredients do you currently have, etc. ----
         sidebarPanel(
             
-            # Check box options for desserts ----
+            # Input: Check box options for selecting the dessert recipes you would like to see ----
             checkboxGroupInput(
                 "recipe_options",
                 label = h3("Recipe Type"),
@@ -72,32 +72,25 @@ shinyUI(fluidPage(
                 ), multiple = TRUE
             ),
             
-            # Input: Slider Range for how long you want spend on your dessert ----
-            sliderInput("time_slider", label = h5("How much time do you have for this dessert?"), min = 0,
+            # Input: Slider Range for how long you want spend on your dessert in minutes----
+            sliderInput("time_slider", label = h5("How much time do you have to make this dessert? (in minutes)"), min = 0,
                         max = 160, value = c(48, 112)),
             
             # Output: A selector to show you which dessert type you selected
+            # This will eventually either be deleted or modified ----
             verbatimTextOutput("recipe_type", placeholder = TRUE)
         ),
         
-        # Adding the main tabs for the app ---
+        # Adding the main tabs for the app ----
         mainPanel(tabsetPanel(
             type = "tabs",
-            # This tab will give the user the option to pick what kind of recipe they want to look for
+            # This tab will give the user the available recipes based on their specifications
             tabPanel("Recipe Options"),
+            # This tab will tell the user the actual recipe as well as the ingredients needed
             tabPanel("Recipe + Ingredients Needed"),
+            # This tab will tell the user the story behind the recipe if one was inputted
             tabPanel("Story Behind Recipe")
         ))
     )
 ))
 
-# # Sidebar layout with recipe options (how sweet, ingredients, etc.) ----
-# sidebarLayout(
-#
-#
-# #     ,
-# #
-# #     # Adding a break to introduce some spacing to the side tab ----
-# #     br(),
-# #
-# # ))
