@@ -11,3 +11,6 @@ To do this I am going to collect the following pieces of information:
 3. the steps of the recipe itself
 4. Scale of 1-10 how sweet this dessert is
 5. What occasion the dessert was made for
+
+For my own memory:
+Branch A001: Building out skeleton UI with all necessary inputs: recipe type, sweet scale, ingredients indicator, recipe contributor, recipe time)
