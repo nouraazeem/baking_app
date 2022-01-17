@@ -22,7 +22,12 @@
 require(dplyr)
 require(shiny)
 require(ggplot2)
-
+# get shiny, DBI, dplyr and dbplyr from CRAN
+require(DBI)
+require(dplyr)
+require(dbplyr)
+require(RMySQL)
+require(odbc)
 # source different modules ----
 
 # Recipe options - tab 1 
