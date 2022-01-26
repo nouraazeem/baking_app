@@ -36,7 +36,10 @@ shinyUI(fluidPage(
             # This tab will tell the user the actual recipe as well as the ingredients needed
             tabPanel("Recipe + Ingredients Needed"),
             # This tab will tell the user the story behind the recipe if one was inputted
-            tabPanel("Story Behind Recipe")
+            tabPanel("Story Behind Recipe"),
+            # This tab will be where users can add their own recipes
+            tabPanel("Submit a New Recipe", submit_new_recipe_ui("submit_new_recipe.R"))
+            
         ))
     )
     

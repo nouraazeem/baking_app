@@ -43,10 +43,13 @@ shinyServer(function(input, output) {
             removeModal()
             l$name <- input$name
             l$state <- input$state
+           
         })
     })
     
     recipeOptionsServer <- recipe_options_server("recipe_options.R")
+
+    submitNewRecipeServer <- submit_new_recipe_server("submit_new_recipe.R")
     
     # Recipe Database ----
     
