@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # save_data_mysql <- function(data) {
 #   db <- dbConnect(MySQL(), dbname = "bitdotio", host = "db.bit.io", 
 #                   port = 5432, user = "nouraazeem_demo_db_connection", 
@@ -8,6 +9,8 @@
 #   dbDisconnect(db)
 # }
 ######
+=======
+>>>>>>> 50b7706c4decfa86825fc9f0dd3020b73eb0ad87
 
 Sys.setenv(PGGSSENCMODE="disable")
 
@@ -32,6 +35,7 @@ query <- 'INSERT INTO "nouraazeem/baking_recipes"."ingredients_needed"
 query <- 'SELECT * FROM "nouraazeem/baking_recipes"."ingredients_needed"'
 ex <- dbGetQuery(con, query)
 
+<<<<<<< HEAD
 
 
 
@@ -62,3 +66,5 @@ load_data_mysql <- function() {
   dbDisconnect(db)
   data
 }
+=======
+>>>>>>> 50b7706c4decfa86825fc9f0dd3020b73eb0ad87
