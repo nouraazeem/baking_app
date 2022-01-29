@@ -295,7 +295,14 @@ submit_new_recipe_server <- function(id, input, output, session) {
                    final_steps <- cbind(submitter_info, steps_df)
                    final_ings <- cbind(submitter_info, ings_df) %>% 
                      dplyr::rename("amount" = "Amount", 
-                                   "ingredient" = "Ingredient")
+                                   "ingredient" = "Ingredient") %>% 
+                     dplyr::mutate(#current_date_bake = as.character(current_date),
+                                   recipe_submitter = tolower(gsub(" ", "_", recipe_submitter)),
+                                   recipe_name = tolower(gsub(" ", "_", recipe_name)),
+                                   amount = tolower(gsub(" ", "_", amount)),
+                                   ingredient = tolower(gsub(" ", "_", ingredient))) %>% 
+                     dplyr::select(-current_date) %>% 
+                     ungroup()
                    
                    browser()
                    data <- final_ings
@@ -311,35 +318,37 @@ submit_new_recipe_server <- function(id, input, output, session) {
                          password = rstudioapi::askForPassword('Database Password')
                        )
                      
-
+dummy_data <- as.data.frame(1:5)
 
                      column_names <- colnames(data)
-                     values <- as.character((data[1,]))
+                     data1 <- as.character((data[1,]))
                      values <- gsub(" ", ".", values)
                      
-                     query2 <- sprintf(paste0('INSERT INTO "nouraazeem/baking_recipes"."ingredients_needed" VALUES', values))
+                     query2 <- sprintf('INSERT INTO "nouraazeem/baking_recipes"."ingredients_needed" (recipe_submitter, recipe_name, current_date_bake, amount, ingredient) VALUES (1,2,3,4,5)')
+                     query2 <- sprintf(paste('INSERT INTO "nouraazeem/baking_recipes"."ingredients_needed" (recipe_submitter, recipe_name, current_date_bake, amount, ingredient) VALUES ', data))
                      
-                   
+                     TABLE_NAME <- '"nouraazeem/baking_recipes"."ingredients_needed"'
+                     query2 <- sprintf("INSERT INTO %s (%s) VALUES ('%s')", TABLE_NAME,
+                                      paste(names(data), collapse = ", "), paste(data, collapse = "', '"))
+                     # query2 <- sprintf("INSERT INTO %s (%s) VALUES ('%s')", TABLE_NAME, 
+                     #                  names(data), data)
+                     
+                     ex2 <- dbSendQuery(con, query2)
+                     
                      
                      query1 <- sprintf('SELECT * FROM "nouraazeem/baking_recipes"."ingredients_needed"' )
                      
+                     query <- sprintf("SELECT * FROM %s", TABLE_NAME)
+                     data <- dbGetQuery(con, query)
                      
                      
-                                      # (recipe_submitter, recipe_name, current_date, amount, ingredient)
+                                      # 
                                       # VALUES 1,2,3,4,5;)
                      
-  #                    # Construct the update query by looping over the data fields
-  #                    query <-
-  #                      'INSERT INTO "nouraazeem/baking_recipes"."ingredients_needed"
-  # (recipe_name, amount_1, ingredient_1, amount_2, ingredient_2, amount_3, ingredient_3,
-  # amount_4, ingredient_4, amount_5, ingredient_5, amount_6, ingredient_6, amount_7,
-  # ingredient_7) VALUES (1,2,3,1,1,1,1,1,1,1,1,1,1,1,1)'
+                   #  ex <- dbGetQuery(con, query1)
                      
-                     ex <- dbGetQuery(con, query1)
                      
-                     ex1 <- dbSendQuery(con, query2)
-                     
-                     ex1 <- dbWriteTable(conn = con, name = '"nouraazeem/baking_recipes"."ingredients_needed"', data)
+                   #  ex1 <- dbWriteTable(conn = con, name = '"nouraazeem/baking_recipes"."ingredients_needed"', data, append = T)
                      
                      
                      
