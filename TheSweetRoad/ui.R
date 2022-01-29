@@ -26,13 +26,13 @@ shinyUI(fluidPage(
         sidebarPanel(
             
             # recipe_options.R houses the function that creates all the UI elements in the baking app  ----
-            recipe_options_ui("recipe_options.R")),
+            recipe_side_panel_ui("recipe_side_panel.R")),
         
         # Adding the main tabs for the app ----
         mainPanel(tabsetPanel(
             type = "tabs",
             # This tab will give the user the available recipes based on their specifications
-            tabPanel("Recipe Options"),
+            tabPanel("Recipe Options", ingredients_needed_ui("ingredients_needed.R")),
             # # This tab will tell the user the actual recipe as well as the ingredients needed
             # tabPanel("Recipe + Ingredients Needed"),
             # This tab will tell the user the story behind the recipe if one was inputted
