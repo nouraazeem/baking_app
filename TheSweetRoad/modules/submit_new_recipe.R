@@ -1,5 +1,5 @@
 # This creates new recipe
-## This will be for the first tab that hsows you the options available
+## This will be for the first tab that shows you the options available
 
 # metric module ----
 submit_new_recipe_ui <- function(id) {
@@ -28,27 +28,6 @@ submit_new_recipe_server <- function(id, input, output, session) {
                function(input, output, session) {
                  ns <- session$ns
                  
-                 # # The name of the recipe submitter
-                 # recipe_submitter = "Enter your name"
-                 # # The name of the recipe
-                 # recipe_name = "Enter recipe name"
-                 # # The type of recipe (cake, cake pop, pie, etc.)
-                 # recipe_type = "Select recipe type"
-                 # # The level of sweetness of the dessert
-                 # sweetness_scale = "Select sweetness"
-                 # # The time to make the dessert in minutes
-                 # servings_total = "How many servings?"
-                 # # Date recipe was submitted
-                 # current_date = Sys.Date()
-                 #
-                 # # Take all of the aforementioned columns and create a dataframe
-                 # submitter_details = data.frame(recipe_submitter = recipe_submitter,
-                 #                                recipe_name = recipe_name, recipe_type = recipe_type,
-                 #                                sweetness_scale = sweetness_scale,
-                 #                                servings_total = servings_total, current_date =
-                 #                                  current_date, stringsAsFactors = FALSE)
-                 #
-                 
                  values = reactiveValues(DF = submitter_details)
                  
                  submitter_table = reactive({
@@ -65,25 +44,6 @@ submit_new_recipe_server <- function(id, input, output, session) {
                    submitter_details = submitter_table()
                    #if (!is.null(DF))
                    
-                   # # The name of the recipe submitter
-                   # recipe_submitter = "Enter your name"
-                   # # The name of the recipe
-                   # recipe_name = "Enter recipe name"
-                   # # The type of recipe (cake, cake pop, pie, etc.)
-                   # recipe_type = "Select recipe type"
-                   # # The level of sweetness of the dessert
-                   # sweetness_scale = "Select sweetness"
-                   # # The time to make the dessert in minutes
-                   # servings_total = "How many servings?"
-                   # # Date recipe was submitted
-                   # current_date = Sys.Date()
-                   #
-                   # # Take all of the aforementioned columns and create a dataframe
-                   # submitter_details = data.frame(recipe_submitter = recipe_submitter,
-                   #                                recipe_name = recipe_name, recipe_type = recipe_type,
-                   #                                sweetness_scale = sweetness_scale,
-                   #                                servings_total = servings_total, current_date =
-                   #                                  current_date, stringsAsFactors = FALSE)
                    # DROPDOWN OPTIONS -- sweetness + cake type
                    sweetness <- 1:5
                    types_of_desserts <-
@@ -221,7 +181,7 @@ submit_new_recipe_server <- function(id, input, output, session) {
                  
                  #################################################### HOT 3 ###############################################
                  # Step number 1:5
-                 Step.number = 1:5
+                 step_number = 1:5
                  # Recipe Steps
                  recipe_step_details = c(
                    "Mix all the dry ingredients",
@@ -241,7 +201,7 @@ submit_new_recipe_server <- function(id, input, output, session) {
                      # Create a template df for steps of the recipe
                      
                      # Step number 1:5
-                     Step.number = 1:5
+                     step_number = 1:5
                      # Recipe Steps
                      recipe_step_details = c(
                        "Mix all the dry ingredients",
@@ -252,7 +212,7 @@ submit_new_recipe_server <- function(id, input, output, session) {
                      )
                      # Bind above columns into a df
                      step_details = data.frame(
-                       Step.number = Step.number,
+                       step_number = step_number,
                        recipe_step_details = recipe_step_details,
                        stringsAsFactors = FALSE
                      )
@@ -283,154 +243,107 @@ submit_new_recipe_server <- function(id, input, output, session) {
                    values_steps$steps_data
                  })
                  
-                 # Click on action button to see df
+                 # Click on the save new recipe button to save the ingredients to the database
                  observeEvent(input$submit, {
+                   # pull in the recipe submitter's information to use as the primary key
                    submitter_info <- submitter_df() %>%
-                     select(recipe_submitter, recipe_name, current_date)
+                     dplyr::select(recipe_submitter, recipe_name, current_date)
                    
+                   # pull in the ingredients the user submitted alongside their recipe
                    ings_df <- ings_df()
                    
+                   # pull in the steps to make the recipe that the user submitted
                    steps_df <- steps_df()
                    
-                   final_steps <- cbind(submitter_info, steps_df)
+                   # final ingredients df - bind the recipe submitter's personal information
+                   # with the ingredients they need to make their recipe into one df
                    final_ings <- cbind(submitter_info, ings_df) %>% 
+                     # rename the columns to make it more db friendly
                      dplyr::rename("amount" = "Amount", 
                                    "ingredient" = "Ingredient") %>% 
-                     dplyr::mutate(#current_date_bake = as.character(current_date),
+                     # Pull in df columns and make more db safe (take away uppercase, 
+                     # take out spaces, etc.)
+                     dplyr::mutate(current_date_bake = as.character(current_date),
                                    recipe_submitter = tolower(gsub(" ", "_", recipe_submitter)),
                                    recipe_name = tolower(gsub(" ", "_", recipe_name)),
                                    amount = tolower(gsub(" ", "_", amount)),
                                    ingredient = tolower(gsub(" ", "_", ingredient))) %>% 
+                     # Taking out current_date column as we remade it into a character
+                     # in the above mutate statement
                      dplyr::select(-current_date) %>% 
                      ungroup()
                    
-                   browser()
-                   data <- final_ings
-                     Sys.setenv(PGGSSENCMODE = "disable")
-                     
-                     con <-
-                       dbConnect(
-                         RPostgres::Postgres(),
-                         dbname = 'bitdotio',
-                         host = 'db.bit.io',
-                         port = 5432,
-                         user = 'bitdotio',
-                         password = rstudioapi::askForPassword('Database Password')
-                       )
-                     
-dummy_data <- as.data.frame(1:5)
+                  
+                   Sys.setenv(PGGSSENCMODE = "disable")
+                   
+                   # Connect to the db -- ask for password as a safety measure - may
+                   # look into other ways to connect to the db
+                   con <-
+                     dbConnect(
+                       RPostgres::Postgres(),
+                       dbname = 'bitdotio',
+                       host = 'db.bit.io',
+                       port = 5432,
+                       user = 'bitdotio',
+                       password = rstudioapi::askForPassword('Database Password')
+                     )
+                   
 
-                     column_names <- colnames(data)
-                     data1 <- as.character((data[1,]))
-                     values <- gsub(" ", ".", values)
-                     
-                     query2 <- sprintf('INSERT INTO "nouraazeem/baking_recipes"."ingredients_needed" (recipe_submitter, recipe_name, current_date_bake, amount, ingredient) VALUES (1,2,3,4,5)')
-                     query2 <- sprintf(paste('INSERT INTO "nouraazeem/baking_recipes"."ingredients_needed" (recipe_submitter, recipe_name, current_date_bake, amount, ingredient) VALUES ', data))
-                     
-                     TABLE_NAME <- '"nouraazeem/baking_recipes"."ingredients_needed"'
-                     query2 <- sprintf("INSERT INTO %s (%s) VALUES ('%s')", TABLE_NAME,
-                                      paste(names(data), collapse = ", "), paste(data, collapse = "', '"))
-                     # query2 <- sprintf("INSERT INTO %s (%s) VALUES ('%s')", TABLE_NAME, 
-                     #                  names(data), data)
-                     
-                     ex2 <- dbSendQuery(con, query2)
-                     
-                     
-                     query1 <- sprintf('SELECT * FROM "nouraazeem/baking_recipes"."ingredients_needed"' )
-                     
-                     query <- sprintf("SELECT * FROM %s", TABLE_NAME)
-                     data <- dbGetQuery(con, query)
-                     
-                     
-                                      # 
-                                      # VALUES 1,2,3,4,5;)
-                     
-                   #  ex <- dbGetQuery(con, query1)
-                     
-                     
-                   #  ex1 <- dbWriteTable(conn = con, name = '"nouraazeem/baking_recipes"."ingredients_needed"', data, append = T)
-                     
-                     
-                     
-                     # return(list(final_steps = final_steps,
-                     #             final_ings = final_ings))
-                     # 
+                   # Here we are turning the ingredients dataframe into a simpler,
+                   # string format for it to better fit into our db
+                   final_ingreds <- paste0(apply(final_ings, 1, function(x) paste0("('", paste0(x, collapse = "', '"), "')")), collapse = ", ")
+                   
+                   # Reference the ingredients_needed remote table we have where the ingredients will
+                   # be saved to 
+                   ingredients_table <- '"nouraazeem/baking_recipes"."ingredients_needed"'
+                   
+                   # write out the query we need with 3 values to be filled in where you see %s
+                   # 1. insert into %s - this first %s is where the table name will be filled in
+                   # 2. (%s) this is where the column names from our ingredients df will be stored
+                   # 3. VALUES %s - this will store the string of ingredients we made above
+                   ingreds_query <- sprintf("INSERT INTO %s (%s) VALUES %s", ingredients_table,
+                                     paste(names(final_ings), collapse = ", "), paste(final_ingreds, collapse = ", "))
+                   # now we will send this query to our remote db so that we can store the ingredients needed for the recipe
+                   ingreds_db <- dbSendQuery(con, ingreds_query)
+                   
+                   
+                   ################################### ADD STEPS TO DB #######################
+                   
+                   # combine the recipe submitter's name + the steps for their recipe as the
+                   # fields used to identify a particular recipe
+                   final_steps <- cbind(submitter_info, steps_df) %>% 
+                     # Pull in df columns and make more db safe (take away uppercase, 
+                     # take out spaces, etc.)
+                     dplyr::mutate(current_date_bake = as.character(current_date),
+                                   recipe_submitter = tolower(gsub(" ", "_", recipe_submitter)),
+                                   recipe_name = tolower(gsub(" ", "_", recipe_name)),
+                                   recipe_step_details = tolower(gsub(" ", "_", recipe_step_details))) %>% 
+                     # Taking out current_date column as we remade it into a character
+                     # in the above mutate statement
+                     dplyr::select(-current_date) %>% 
+                     ungroup()
+                   
+                   
+                   # Here we are turning the recipe steps dataframe into a simpler,
+                   # string format for it to better fit into our db
+                   final_rec_steps <- paste0(apply(final_steps, 1, function(x) paste0("('", paste0(x, collapse = "', '"), "')")), collapse = ", ")
+                   
+                   # Reference the ingredients_needed remote table we have where the ingredients will
+                   # be saved to 
+                   steps_table <- '"nouraazeem/baking_recipes"."steps_needed"'
+                   
+                   # write out the query we need with 3 values to be filled in where you see %s
+                   # 1. insert into %s - this first %s is where the table name will be filled in
+                   # 2. (%s) this is where the column names from our steps df will be stored
+                   # 3. VALUES %s - this will store the string of steps we made above
+                   steps_query <- sprintf("INSERT INTO %s (%s) VALUES %s", steps_table,
+                                            paste(names(final_steps), collapse = ", "), paste(final_rec_steps, collapse = ", "))
+                   # now we will send this query to our remote db so that we can store the steps needed for the recipe
+                   steps_db <- dbSendQuery(con, steps_query)
+                   
                    })
 
-                 # final_steps <- reactive({
-                 #   submitter_info <- submitter_df() %>%
-                 #     select(recipe_submitter, recipe_name, current_date)
-                 #
-                 #   steps_df <- steps_df()
-                 #   final_steps <- cbind(submitter_info, steps_df)
-                 #
-                 #   return(reactive(final_steps))
-                 # })
-                 #
-                 # final_ingreds <- reactive({
-                 #   submitter_info <- submitter_df() %>%
-                 #     select(recipe_submitter, recipe_name, current_date)
-                 #
-                 #   ings_df <- ings_df()
-                 #
-                 #   final_ings <- cbind(submitter_info, ings_df)
-                 #   return(reactice(final_ings))
-                 #
-                 # })
-                 #
                  
-                 
-                 
-                 
-                 
-                 
-                 
-                 
-                 #   clicked <- reactiveValues(submit = FALSE, reset = FALSE)
-                 #
-                 #      initial_hot <- rhandsontable(as.data.frame(matrix(NA_integer_, nrow = 3, ncol = 3)))
-                 #   #   correct_values <- as.data.frame(matrix(1:9, nrow = 3, byrow = TRUE))
-                 #   #
-                 #     observeEvent(input$submit, {
-                 #       clicked$submit <- TRUE
-                 #       clicked$reset <- FALSE
-                 #     })
-                 #
-                 #     updated_hot <- eventReactive(input$submit, {
-                 #       input_values <- hot_to_r(input$submit_new_steps_hot)
-                 #       update_hot(input_values = input_values)
-                 #       #, correct_values = correct_values
-                 #     })
-                 #
-                 #     observeEvent(input$reset, {
-                 #       clicked$reset <- TRUE
-                 #       clicked$submit <- FALSE
-                 #     })
-                 #
-                 #     reset_hot <- eventReactive(input$reset, {
-                 #       recipe_step_details
-                 #     })
-                 #
-                 #
-                 #     output$submit_new_steps_hot <- renderRHandsontable({
-                 #
-                 #       if(!clicked$submit & !clicked$reset){
-                 #         out <- initial_hot
-                 #       } else if(clicked$submit & !clicked$reset){
-                 #         out <- updated_hot()
-                 #       } else if(clicked$reset & !clicked$submit){
-                 #         out <- reset_hot()
-                 #       }
-                 #
-                 #       out
-                 #   })
-                 #
-                 
-                 # })
-             #    })
-  
-  
-              # }
 })
   }
                
