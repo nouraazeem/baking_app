@@ -37,7 +37,7 @@ require(rhandsontable)
 # install.packages("rmarkdown")
 # install.packages("formattable")
 #install.packages("DT")
-require(updateR)
+
 require(DT)
 require(bslib)
 require(rmarkdown)
@@ -67,7 +67,7 @@ submitter_details = data.frame(recipe_submitter = recipe_submitter,
 # source different modules ----
 
 # Recipe options - tab 1 
-source('./modules/recipe_options.R')
+source('./modules/recipe_side_panel.R')
 
 # Ingredients needed for recipe - tab 2
 #source('ingredients_needed.R')

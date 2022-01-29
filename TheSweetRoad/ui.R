@@ -33,8 +33,8 @@ shinyUI(fluidPage(
             type = "tabs",
             # This tab will give the user the available recipes based on their specifications
             tabPanel("Recipe Options"),
-            # This tab will tell the user the actual recipe as well as the ingredients needed
-            tabPanel("Recipe + Ingredients Needed"),
+            # # This tab will tell the user the actual recipe as well as the ingredients needed
+            # tabPanel("Recipe + Ingredients Needed"),
             # This tab will tell the user the story behind the recipe if one was inputted
             tabPanel("Story Behind Recipe"),
             # This tab will be where users can add their own recipes
