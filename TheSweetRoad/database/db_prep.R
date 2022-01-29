@@ -15,13 +15,13 @@ query <- 'INSERT INTO "nouraazeem/baking_recipes"."ingredients_needed"
   amount_4, ingredient_4, amount_5, ingredient_5, amount_6, ingredient_6, amount_7,
   ingredient_7) VALUES (1,2,3,1,1,1,1,1,1,1,1,1,1,1,1)'
 
+ex <- dbGetQuery(con, query)
 
 #("Palestinian Knafe","1 Package", "Shredded Phyllo Dough", "16 ounces", 
  #"Fresh Mozzarella Slices", "1/2 - 1 Cup", "Ricotta Cheese", "2 Sticks", "Butter", "1 Cup",
  #"Sugar", "1", "Lemon") 
 
 query <- 'SELECT * FROM "nouraazeem/baking_recipes"."ingredients_needed"'
-ex <- dbGetQuery(con, query)
 
 
 
