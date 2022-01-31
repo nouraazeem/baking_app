@@ -15,21 +15,23 @@ ingredients_needed_ui <- function(id) {
   )
 }
 
-ingredients_needed_server <- function(id, input, output, session, recipe_options) {
+ingredients_needed_server <- function(id, input, output, session) {
   # Calling the moduleServer function
   moduleServer(
     # Setting the id
     id,
     # Defining the module core mechanism
-    function(input, output, session) {
+    function(input, output, session, recipe_options) {
       
       ns <- session$ns
       
       # This code with be modified in the future it is currently here just to make sure the recipe
       # check boxes are linked up properly to the backend - pls fix
       output$recipe_type <- renderText({
-        
+
+      
         recipe_options <- paste(input$recipe_options, "yum!")
+        
         paste("You selected ", recipe_options)
       })
     })

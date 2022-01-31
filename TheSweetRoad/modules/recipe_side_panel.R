@@ -83,9 +83,11 @@ recipe_side_panel_server <- function(id, input, output, session) {
       output$recipe_type <- renderText({
        
         recipe_options <- paste(input$recipe_options, "yum!")
+        
         paste("You selected ", recipe_options)
       })
-      return(input)
+      return(recipe_options = reactive({ input$recipe_options }))
+      browser()
     })
 
   
