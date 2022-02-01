@@ -70,7 +70,7 @@ submitter_details = data.frame(recipe_submitter = recipe_submitter,
 source('./modules/recipe_side_panel.R')
 
 # Ingredients needed for recipe - tab 2
-#source('ingredients_needed.R')
+source('./modules/ingredients_needed.R')
 
 # Story behind recipe - tab 3
 #source('recipe_story.R')
@@ -80,6 +80,7 @@ source('./modules/submit_new_recipe.R')
 
 # Side Panel with inputs for picking a recipe - side panel
 #source('recipe_side_panel.R')
+
 
 
 

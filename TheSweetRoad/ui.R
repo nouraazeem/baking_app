@@ -12,7 +12,7 @@
 library(shiny)
 
 # Define UI for application that draws a histogram
-shinyUI(fluidPage(
+ui <- shinyUI(fluidPage(
     # Application title ----
     titlePanel("The Sweet Road... goes digital"),
     
@@ -26,8 +26,8 @@ shinyUI(fluidPage(
         sidebarPanel(
             
             # recipe_options.R houses the function that creates all the UI elements in the baking app  ----
-            recipe_side_panel_ui("recipe_side_panel.R")),
-        
+            recipe_side_panel_ui("recipe_side_panel")),
+
         # Adding the main tabs for the app ----
         mainPanel(tabsetPanel(
             type = "tabs",

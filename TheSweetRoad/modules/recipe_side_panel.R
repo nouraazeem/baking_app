@@ -80,14 +80,22 @@ recipe_side_panel_server <- function(id, input, output, session) {
       
       # This code with be modified in the future it is currently here just to make sure the recipe
       # check boxes are linked up properly to the backend - pls fix
+      recipe_option_select <- reactive(
+       recipe <- input$recipe_options
+      )
+      
       output$recipe_type <- renderText({
        
-        recipe_options <- paste(input$recipe_options, "yum!")
+        req(recipe_option_select())
+        selected <- recipe_option_select()
+        recipe_options_selected <- paste(input$recipe_options, "yum!")
+        paste("You selected ", recipe_options_selected)
+        #browser()
         
-        paste("You selected ", recipe_options)
       })
-      return(recipe_options = reactive({ input$recipe_options }))
-      browser()
+     
+      return(rec_opt = recipe_option_select)
+    
     })
 
   
