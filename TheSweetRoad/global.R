@@ -38,6 +38,7 @@ require(DT)
 require(bslib)
 require(rmarkdown)
 require(formattable)
+require(shinydashboard)
 
 # The name of the recipe submitter
 recipe_submitter = "Enter your name"
@@ -144,16 +145,10 @@ steps_data <- dbGetQuery(con, steps_query)
 # People to select from
 recipe_submitter_names <- ingredients_data %>%
   dplyr::select(recipe_submitter) %>%
-  dplyr::mutate(recipe_submitter = stringr::str_to_title(gsub("_", " ", recipe_submitter))) %>% 
-  dplyr::rename(`Recipe Submitter` = recipe_submitter) %>% 
-  add_row(`Recipe Submitter` = "All") %>% 
-unique()
+  dplyr::mutate(recipe_submitter = stringr::str_to_title(gsub("_", " ", recipe_submitter))) %>%
+  dplyr::rename(`Recipe Submitter` = recipe_submitter) %>%
+  add_row(`Recipe Submitter` = "All") %>%
+  unique()
 
 # convert to a string
 recipe_submitter_names <- as.vector(recipe_submitter_names)
-
-
-
-
-
-

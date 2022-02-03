@@ -10,6 +10,14 @@ ingredients_needed_ui <- function(id) {
     verbatimTextOutput(ns("recipe_type_sel"), placeholder = TRUE),
     # The recipe table that can be toggled by the side panel choices (recipe type, etc.)
     dataTableOutput(ns('recipe_table')),
+    tags$style(
+      type = "text/css",
+      
+      ".shiny-output-error { visibility: hidden; }",
+      
+      ".shiny-output-error:before { visibility: hidden; }"
+      
+    ),
     # The table that outputs the ingredients to make the recipes
     dataTableOutput(ns("ingredients_table")),
     # The table that outputs the steps to make the recipes
@@ -43,23 +51,26 @@ ingredients_needed_server <-
           # Pulling in the sweetness scale values (1-5)
           sweetie_scale <- rec_options()$sweet_scale
           # Pulling in the ingredients needed for the recipe (butter, etc.)
-          ings_needed <- stringr::str_to_title(gsub("_", " ", rec_options()$ings))
+          ings_needed <-
+            stringr::str_to_title(gsub("_", " ", rec_options()$ings))
           # Pulling in the name of the recipe submitter
-          recipe_submitter_selected <- stringr::str_to_title(gsub("_", " ", rec_options()$ppl))
+          recipe_submitter_selected <-
+            stringr::str_to_title(gsub("_", " ", rec_options()$ppl))
           # Pulling in how many servings the dessert makes
           servings_made <- rec_options()$servings_made
-
-          # Pulling in the ingredients dataset to filter down to the different recipe options
-          recipe_name_data_filt <- ingredients_data %>% 
+          
+          # PCleaning up the names of our inputs
+          recipe_name_data_filt <- ingredients_data %>%
             dplyr::mutate(
               recipe_submitter = stringr::str_to_title(gsub("_", " ", recipe_submitter)),
               ingredient = stringr::str_to_title(gsub("_", " ", ingredient)),
               recipe_name = stringr::str_to_title(gsub("_", " ", recipe_name))
-              #recipe_type = stringr::str_to_title(gsub("_", " ", recipe_type))
-            ) 
-
-          # If the user did not select all recipe types, filter to the following options:
-          if (recipe_type_selected != "all" & recipe_submitter_selected != "All") {
+            )
+          
+          # If the user did not select all recipe types and did not select all recipe
+          # submitters, filter to the following options:
+          if (recipe_type_selected != "all" &
+              recipe_submitter_selected != "All") {
             # Rename the name
             recipe_name_data <- recipe_name_data_filt %>%
               # filter to the recipe type that was selected to match the recipe type
@@ -67,49 +78,45 @@ ingredients_needed_server <-
               dplyr::filter(
                 recipe_type %in% recipe_type_selected,
                 ingredient  %in% ings_needed,
-               recipe_submitter %in% recipe_submitter_selected
+                recipe_submitter %in% recipe_submitter_selected
               ) %>%
               # Only select the unique identifiers for the recipes
               dplyr::select(recipe_submitter, recipe_name, recipe_type) %>%
               unique()
-          } else if (recipe_type_selected != "all") { 
+            # If the recipe type is not "All"
+          } else if (recipe_type_selected != "all") {
             recipe_name_data <- recipe_name_data_filt %>%
-              # filter to the recipe type that was selected to match the recipe type
-              # associated with the recipe that was submitted
-              dplyr::filter(
-                recipe_type %in% recipe_type_selected,
-                ingredient  %in% ings_needed,
-                #recipe_submitter %in% recipe_submitter_selected
-              ) %>%
+              # filter to the recipe type associated with the recipe that was submitted
+              dplyr::filter(recipe_type %in% recipe_type_selected,
+                            ingredient  %in% ings_needed,) %>%
               # Only select the unique identifiers for the recipes
               dplyr::select(recipe_submitter, recipe_name, recipe_type) %>%
               unique()
-           } else if (recipe_submitter_selected != "All") {
+            # If the recipe submitter option is not All
+          } else if (recipe_submitter_selected != "All") {
             recipe_name_data <- recipe_name_data_filt   %>%
-              # select only the unique identifiers for the recipe
+              # filter to the user inputs
               dplyr::filter(
-                #recipe_type %in% recipe_type_selected,
                 ingredient  %in% ings_needed,
                 recipe_submitter %in% recipe_submitter_selected
               ) %>%
-              # recipe_submitter %in% recipe_submitter_selected) %>% 
+              # select only the unique identifiers
               dplyr::select(recipe_submitter, recipe_name, recipe_type) %>%
               unique()
             
           } else {
-            # Or else do not filter the data
+            # Or else only filter the ingredients
             recipe_name_data <- recipe_name_data_filt   %>%
+              dplyr::filter(ingredient %in% ings_needed) %>%
               # select only the unique identifiers for the recipe
-              dplyr::filter(#recipe_type %in% recipe_type_selected,
-                            ingredient  %in% ings_needed) %>% 
-                            # recipe_submitter %in% recipe_submitter_selected) %>% 
               dplyr::select(recipe_submitter, recipe_name, recipe_type) %>%
               unique()
           }
-          recipe_name_data <- recipe_name_data %>% 
-            dplyr:: mutate(recipe_type = stringr::str_to_title(gsub("_", " ", recipe_type)))
-            
-            
+          recipe_name_data <- recipe_name_data %>%
+            # Final data manipulation to make the recipe type legible
+            dplyr::mutate(recipe_type = stringr::str_to_title(gsub("_", " ", recipe_type)))
+          
+          
         })
         ######################################### 1st DATA TABLE ##############################
         # Let's render the data table
@@ -152,7 +159,7 @@ ingredients_needed_server <-
           
           # Selecting all of the ingredients associated with the recipes that were submitted
           ingreds_needed <<-
-            ingreds_needed[ingreds_needed$recipe_name %in% project,]
+            ingreds_needed[ingreds_needed$recipe_name %in% project, ]
           
           # Pull in the data and don't allow searching
           DT::datatable(
@@ -208,7 +215,7 @@ ingredients_needed_server <-
           
           # Selecting all of the steps associated with the recipes that were submitted
           steps_needed <-
-            steps_needed[steps_needed$recipe_name %in% project,]
+            steps_needed[steps_needed$recipe_name %in% project, ]
           
           # Pull in the data and take out filtering ability
           DT::datatable(
