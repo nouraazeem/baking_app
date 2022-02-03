@@ -16,8 +16,8 @@ ui <- shinyUI(fluidPage(
     # Application title ----
     titlePanel("The Sweet Road... goes digital"),
     
-    # Adding a button for users to add their own recipe ----
-    actionButton("add_new_recipe", "Add New Recipe", style = "simple", size = "sm", color = "warning"),
+    # # Adding a button for users to add their own recipe ----
+    # actionButton("add_new_recipe", "Add New Recipe", style = "simple", size = "sm", color = "warning"),
     
     # Adding a side selection menu ----
     sidebarLayout(
@@ -25,18 +25,24 @@ ui <- shinyUI(fluidPage(
         # Sidebar Panel for basic inputs such as which dessert you are picking, which ingredients do you currently have, etc. ----
         sidebarPanel(
             
+            conditionalPanel(
+                condition = "input.tabss === 'Recipe Options'",
+                recipe_side_panel_ui("recipe_side_panel")
+            ),
+            conditionalPanel(
+                'input.tabss === "Submit a New Recipe"',
+                helpText("Enter recipe submitter's information, ingredients, and steps in the corresponding boxes.")
+            )
+            ),
+            
             # recipe_options.R houses the function that creates all the UI elements in the baking app  ----
-            recipe_side_panel_ui("recipe_side_panel")),
 
         # Adding the main tabs for the app ----
         mainPanel(tabsetPanel(
+            id = 'tabss',
             type = "tabs",
             # This tab will give the user the available recipes based on their specifications
             tabPanel("Recipe Options", ingredients_needed_ui("ingredients_needed.R")),
-            # # This tab will tell the user the actual recipe as well as the ingredients needed
-            # tabPanel("Recipe + Ingredients Needed"),
-            # This tab will tell the user the story behind the recipe if one was inputted
-            tabPanel("Story Behind Recipe"),
             # This tab will be where users can add their own recipes
             tabPanel("Submit a New Recipe", submit_new_recipe_ui("submit_new_recipe.R"))
             
