@@ -53,15 +53,15 @@ recipe_side_panel_ui <- function(id) {
     ns('ppl'), 'Whose recipes do you want to look at?', 
     choices = recipe_submitter_names,
     multiple = TRUE, selected = "All"
-  ),
+  )
   
-  # Input: Slider Range for how many servings does  ----
-  sliderInput(ns("servings_made"), label = h5("How long does it take to make? (Round up to hours)"), min = 0,
-              max = 5, value = 2),
+  # # Input: Slider Range for how many servings does  ----
+  # sliderInput(ns("servings_made"), label = h5("How long does it take to make? (Round up to hours)"), min = 0,
+  #             max = 5, value = 2),
   
   # Output: A selector to show you which dessert type you selected
   # This will eventually either be deleted or modified ----
-  verbatimTextOutput(ns("recipe_type"), placeholder = TRUE)
+  # verbatimTextOutput(ns("recipe_type"), placeholder = TRUE)
   
   
   

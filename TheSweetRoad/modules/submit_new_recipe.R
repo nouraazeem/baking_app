@@ -206,7 +206,9 @@ submit_new_recipe_server <- function(id, input, output, session) {
                      dplyr::select(recipe_submitter,
                                    recipe_name,
                                    current_date,
-                                   recipe_type)
+                                   recipe_type,
+                                   sweetie_scale, 
+                                   servings_total)
                    
                    # pull in the ingredients the user submitted alongside their recipe
                    ings_df <- ings_df()
@@ -234,7 +236,6 @@ submit_new_recipe_server <- function(id, input, output, session) {
                      # in the above mutate statement
                      dplyr::select(-current_date) %>%
                      ungroup()
-                   
                    
                    
                    # Here we are turning the ingredients dataframe into a simpler,
@@ -266,6 +267,9 @@ submit_new_recipe_server <- function(id, input, output, session) {
                    
                    
                    ################################### ADD STEPS TO DB #######################
+                   # Take out sweetness scale + servings made
+                   submitter_info <- submitter_info %>% 
+                     dplyr::select(-sweetie_scale, -servings_total)
                    
                    # combine the recipe submitter's name + the steps for their recipe as the
                    # fields used to identify a particular recipe

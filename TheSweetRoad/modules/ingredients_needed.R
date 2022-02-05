@@ -4,24 +4,66 @@
 ingredients_needed_ui <- function(id) {
   ns <- NS(id)
   
-  tagList(
+  tagList(fluidRow(
+    column(
+      7,  #style='margin-bottom:30px;border:1px solid; padding: 10px;',
+      #style = 'border-right: 1px solid',
+      # The recipe table that can be toggled by the side panel choices (recipe type, etc.)
+      p("Welcome to the Sweet Road!", align = "center"),
+      strong("Step 1"),
+      em(
+        "Use the left side panel to narrow down recipes to narrow down to your desired recipe options"
+      ),
+      br(),
+      strong("Step 2"),
+      em(
+        "Select the recipes you are interested in and the corresponding ingredients and steps for the recipes will show in the tables below. "
+      ),
+      br(),
+      br(),
+      strong("Available Recipes Table"),
+      p(
+        "All of the available recipes are available below (and we are looking forward to hosting your favorite recipes soon, but more on that later!).",
+        style = "font-family: 'times'; font-si16pt"
+      ),
+      dataTableOutput(ns('recipe_table')),
+      tags$style(
+        type = "text/css",
+        
+        ".shiny-output-error { visibility: hidden; }",
+        
+        ".shiny-output-error:before { visibility: hidden; }"
+        
+      )),
+    column(5,
+             plotOutput(
+               ns('sweetness_servings_plot'), height = 350
+             ))
+    ),
+    hr(style = "border-top: 1px solid #000000;"),
+    
+    fluidRow(column(6,
+                    strong("Ingredients Needed Table"),
+                    p(
+                      "The ingredients to make the recipes you selected will be listed in the table below. Use the buttons to Copy, Print, or Save the data to PDF, CSV, or to an Excel sheet.",
+                      style = "font-family: 'times'; font-si16pt"
+                    ),
+                    dataTableOutput(
+                      ns("ingredients_table")
+                    )),
+             column(6,
+                    strong("Recipe Steps Table"),
+                    p(
+                      "The steps to make the recipes you selected will be listed in the table below. Feel free to use the buttons to Copy, Print, or Save the data to PDF, CSV, or to an Excel sheet.",
+                      style = "font-family: 'times'; font-si16pt"
+                    ),
+                    dataTableOutput(
+                      ns("steps_table")
+                    )))
     # Output: A selector to show you which dessert type you selected
     # This will eventually either be deleted or modified ----
-    verbatimTextOutput(ns("recipe_type_sel"), placeholder = TRUE),
-    # The recipe table that can be toggled by the side panel choices (recipe type, etc.)
-    dataTableOutput(ns('recipe_table')),
-    tags$style(
-      type = "text/css",
-      
-      ".shiny-output-error { visibility: hidden; }",
-      
-      ".shiny-output-error:before { visibility: hidden; }"
-      
-    ),
     # The table that outputs the ingredients to make the recipes
-    dataTableOutput(ns("ingredients_table")),
     # The table that outputs the steps to make the recipes
-    dataTableOutput(ns("steps_table"))
   )
 }
 
@@ -36,11 +78,11 @@ ingredients_needed_server <-
         
         # This code with be modified in the future it is currently here just to make sure the recipe
         # check boxes are linked up properly to the backend - pls fix
-        output$recipe_type_sel <- renderText({
-          recipe_type <- rec_options()$recipe_options
-          
-          paste0("You selected ", recipe_type)
-        })
+        # output$recipe_type_sel <- renderText({
+        #   recipe_type <- rec_options()$recipe_options
+        #   
+        #   paste0("You selected ", recipe_type)
+        # })
         
         # Creating the data table that will interact with the recipe side panel and allow users to
         # see which recipes match up with the selected user inputs
@@ -81,7 +123,11 @@ ingredients_needed_server <-
                 recipe_submitter %in% recipe_submitter_selected
               ) %>%
               # Only select the unique identifiers for the recipes
-              dplyr::select(recipe_submitter, recipe_name, recipe_type) %>%
+              dplyr::select(recipe_submitter,
+                            recipe_name,
+                            recipe_type,
+                            sweetie_scale,
+                            servings_total) %>%
               unique()
             # If the recipe type is not "All"
           } else if (recipe_type_selected != "all") {
@@ -90,7 +136,11 @@ ingredients_needed_server <-
               dplyr::filter(recipe_type %in% recipe_type_selected,
                             ingredient  %in% ings_needed,) %>%
               # Only select the unique identifiers for the recipes
-              dplyr::select(recipe_submitter, recipe_name, recipe_type) %>%
+              dplyr::select(recipe_submitter,
+                            recipe_name,
+                            recipe_type,
+                            sweetie_scale,
+                            servings_total) %>%
               unique()
             # If the recipe submitter option is not All
           } else if (recipe_submitter_selected != "All") {
@@ -101,7 +151,11 @@ ingredients_needed_server <-
                 recipe_submitter %in% recipe_submitter_selected
               ) %>%
               # select only the unique identifiers
-              dplyr::select(recipe_submitter, recipe_name, recipe_type) %>%
+              dplyr::select(recipe_submitter,
+                            recipe_name,
+                            recipe_type,
+                            sweetie_scale,
+                            servings_total) %>%
               unique()
             
           } else {
@@ -109,7 +163,11 @@ ingredients_needed_server <-
             recipe_name_data <- recipe_name_data_filt   %>%
               dplyr::filter(ingredient %in% ings_needed) %>%
               # select only the unique identifiers for the recipe
-              dplyr::select(recipe_submitter, recipe_name, recipe_type) %>%
+              dplyr::select(recipe_submitter,
+                            recipe_name,
+                            recipe_type,
+                            sweetie_scale,
+                            servings_total) %>%
               unique()
           }
           recipe_name_data <- recipe_name_data %>%
@@ -118,14 +176,22 @@ ingredients_needed_server <-
           
           
         })
+        
         ######################################### 1st DATA TABLE ##############################
         # Let's render the data table
         output$recipe_table <- DT::renderDataTable({
           # Pull in the data frame we just set conditions for above
           DT::datatable(
             dataset(),
+            # filtered_frame(),
             rownames = FALSE,
-            colnames = c('Recipe Submitter', 'Recipe Name', 'Recipe Type'),
+            colnames = c(
+              'Recipe Submitter',
+              'Recipe Name',
+              'Recipe Type',
+              'Sweetness Scale',
+              'Total Servings'
+            ),
             options = list(
               searching = FALSE,
               dom = 't',
@@ -138,6 +204,26 @@ ingredients_needed_server <-
             )
           )
         })
+        
+        ######################################### Sweetness & Servings Plot ###################
+        
+        
+        output$sweetness_servings_plot <- renderPlot({
+          # Selecting the rows that the user clicked on in the above dataframe
+          selected <<- input$recipe_table_rows_selected
+          
+          dataset <- dataset() %>%
+            dplyr::select(sweetie_scale, servings_total)
+          
+          par(mar = c(4, 4, 1, .1))
+         plot(dataset, main = "Sweetness x Servings Table", xlab = "Sweetness Scale", ylab = "Servings Made", bg = "pink", col = "blue", pch = 23, cex = 2, font.lab = 2)
+          
+         
+         if (length(selected))
+            points(dataset[selected, , drop = FALSE])
+        
+        })
+        
         ######################################### 2nd DATA TABLE ##############################
         # Let's render the data table
         output$ingredients_table <- DT::renderDataTable({

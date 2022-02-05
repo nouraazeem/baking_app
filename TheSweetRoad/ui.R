@@ -13,7 +13,6 @@ library(shiny)
 
 # Define UI for application that draws a histogram
 ui <- shinyUI(fluidPage(
-    
       header <- dashboardHeader(title = "Sweet Road goes digital"),
     # Application title ----
     titlePanel("The Sweet Road... goes digital"),
