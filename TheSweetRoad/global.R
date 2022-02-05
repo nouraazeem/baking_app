@@ -132,8 +132,7 @@ con <-
     host = 'db.bit.io',
     port = 5432,
     user = 'bitdotio',
-    password = 'qY2d_puzjfPpJtHVvxj9L7ZVKDgx'
-    #password = rstudioapi::askForPassword('Database Password')
+    password = rstudioapi::askForPassword('Database Password')
   )
 
 ##### Load in data ----
