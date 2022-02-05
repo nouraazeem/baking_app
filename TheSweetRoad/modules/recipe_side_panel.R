@@ -5,6 +5,11 @@ recipe_side_panel_ui <- function(id) {
   ns <- NS(id)
   
   tagList(
+    # setBackgroundColor(
+    #   color = c("#F7FBFF", "#2171B5"),
+    #   gradient = "linear",
+    #   direction = "bottom"
+    # ),
   
   # Input: Check box options for selecting the dessert recipes you would like to see ----
   checkboxGroupInput(

@@ -1,5 +1,9 @@
 # This creates new recipe
 ## This will be for the first tab that shows you the options available
+css <- "
+.handsontable.listbox td {
+  background: black;
+}"
 
 # metric module ----
 submit_new_recipe_ui <- function(id) {
@@ -7,15 +11,54 @@ submit_new_recipe_ui <- function(id) {
   
   tagList(
     # Action button to submit the recipes
-    actionButton(inputId = ns("submit"), label = "Submit New Recipe"),
-    # Generates the HOT for users to submit name, dessert, date, type of dessert, sweetness, etc.
+    br(),
+    column(12, actionButton(inputId = ns("submit"), label = "Submit New Recipe"), align = "right"),
+    p("Submit a Recipe to the Sweet Road Recipe Generator!", style = "text-align: center; font-weight: bolder"),
+    p(
+      "Use the button in the top right to submit your completed recipe into the Sweet Road Recipe Generator. Thanks for sharing! :-)", style = "text-align: center; font-family: 'times'; font-si30pt"
+    ),
+    p("Instructions:", style = "font-weight: bolder"),
+    strong("Step 1"),
+    em(
+      "Use the first table to submit you and your recipe's informations"
+    ),
+    p(
+      "Enter your name, the name of your recipe, the type of recipe it is (select the type of dessert that best aligns to your",
+      "recipe), the level of sweetness of the recipe (on a scale of 1-5, how sweet is your recipe?), and the number of servings",
+      " that this recipe makes..", style = "font-family: 'times'; font-si16pt"
+    ),
     rHandsontableOutput(ns("submit_new_name_hot")),
-    tags$style(type = "text/css", "#submit_new_name_hot th {font-weight:bold;}"),
+    #tags$style(type = "text/css", "#submit_new_name_hot th {font-weight:bold;}"),
+    tags$head(tags$style(HTML(css))),
+    br(),
+    fluidRow(
+    column(6,
+    strong("Step 2"),
+    em(
+      "Enter the ingredients and the amounts needed"
+    ),
+    p(
+      "Enter the amount of each ingredient that is needed and the ingredient itself. Please write over the text in the table as",
+      "it was listed as a guide to know what to add in. If you would like to add a row into the table you will need to right",
+      " click in the box and insert a row above or below the box you are entering ingredients into.", style = "font-family: 'times'; font-si16pt"
+    ),
     # Generate the HOT for users to submit the ingredients needed for their dessert + quantities
     # of ingredients
-    rHandsontableOutput(ns("submit_new_ing_hot")),
+    rHandsontableOutput(ns("submit_new_ing_hot"))),
+    column(6,
+    strong("Step 3"),
+    em(
+      "Enter the steps associated with making the recipe"
+    ),
+    p(
+      "Enter the step number and the step associated with the number to make the recipe. Please write over the text in the table as",
+      "it was listed as a guide to know what to add in. If you would like to add a row into the table you will need to right",
+      " click in the box and insert a row above or below the box you are entering ingredients into.", style = "font-family: 'times'; font-si16pt"
+    ),
     # Generates the HOT for users to submit the steps for making a dessert
-    rHandsontableOutput(ns("submit_new_steps_hot"))
+    rHandsontableOutput(ns("submit_new_steps_hot"))),
+    # Generates the HOT for users to submit name, dessert, date, type of dessert, sweetness, etc.
+  )
   )
   
 }
@@ -63,7 +106,7 @@ submit_new_recipe_server <- function(id, input, output, session) {
                      submitter_details,
                      rowHeaders = NULL,
                      width = 1000,
-                     height = 250,
+                     height = 175,
                      colHeaders = c(
                        "Recipe Submitter",
                        "Recipe Name",
@@ -139,7 +182,7 @@ submit_new_recipe_server <- function(id, input, output, session) {
                      ingredients_df,
                      rowHeaders = NULL,
                      width = 800,
-                     height = 300,
+                     height = 400,
                      colHeaders = c(
                        "Enter the amount of the ingredient",
                        "Enter the name of the ingredient"
@@ -177,7 +220,7 @@ submit_new_recipe_server <- function(id, input, output, session) {
                        step_details,
                        rowHeaders = NULL,
                        width = 500,
-                       height = 500,
+                       height = 400,
                        colHeaders = c("Step Number", "Step Details")
                      ) %>%
                        # hot_context_menu(allowRowEdit = TRUE) %>%

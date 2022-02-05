@@ -4,62 +4,70 @@
 ingredients_needed_ui <- function(id) {
   ns <- NS(id)
   
-  tagList(fluidRow(
-    column(
-      7,  #style='margin-bottom:30px;border:1px solid; padding: 10px;',
-      #style = 'border-right: 1px solid',
-      # The recipe table that can be toggled by the side panel choices (recipe type, etc.)
-      p("Welcome to the Sweet Road!", align = "center"),
-      strong("Step 1"),
-      em(
-        "Use the left side panel to narrow down recipes to narrow down to your desired recipe options"
+  tagList(
+    fluidRow(
+      column(
+        7,
+        #style='margin-bottom:30px;border:1px solid; padding: 10px;',
+        #style = 'border-right: 1px solid',
+        # The recipe table that can be toggled by the side panel choices (recipe type, etc.)
+        br(),
+        p("Welcome to the Sweet Road Recipe Generator!", style = "text-align: center; font-weight: bolder"),
+        p("Instructions:", style = "font-weight: bolder"),
+        strong("Step 1"),
+        em(
+          "Use the left side panel to narrow down recipes to narrow down to your desired recipe options"
+        ),
+        br(),
+        strong("Step 2"),
+        em(
+          "Select the recipes you are interested in and the corresponding ingredients and steps for the recipes will show in the tables below. "
+        ),
+        br(),
+        br(),
+        strong("Available Recipes Table"),
+        p(
+          "All of the available recipes are available below (and we are looking forward to hosting your favorite recipes soon, but more on that later!).",
+          style = "font-family: 'times'; font-si16pt"
+        ),
+        dataTableOutput(ns('recipe_table')),
+        tags$style(
+          type = "text/css",
+          
+          ".shiny-output-error { visibility: hidden; }",
+          
+          ".shiny-output-error:before { visibility: hidden; }"
+          
+        )
       ),
-      br(),
-      strong("Step 2"),
-      em(
-        "Select the recipes you are interested in and the corresponding ingredients and steps for the recipes will show in the tables below. "
-      ),
-      br(),
-      br(),
-      strong("Available Recipes Table"),
-      p(
-        "All of the available recipes are available below (and we are looking forward to hosting your favorite recipes soon, but more on that later!).",
-        style = "font-family: 'times'; font-si16pt"
-      ),
-      dataTableOutput(ns('recipe_table')),
-      tags$style(
-        type = "text/css",
-        
-        ".shiny-output-error { visibility: hidden; }",
-        
-        ".shiny-output-error:before { visibility: hidden; }"
-        
-      )),
-    column(5,
+      column(5,
+             br(),
              plotOutput(
                ns('sweetness_servings_plot'), height = 350
              ))
     ),
     hr(style = "border-top: 1px solid #000000;"),
     
-    fluidRow(column(6,
-                    strong("Ingredients Needed Table"),
-                    p(
-                      "The ingredients to make the recipes you selected will be listed in the table below. Use the buttons to Copy, Print, or Save the data to PDF, CSV, or to an Excel sheet.",
-                      style = "font-family: 'times'; font-si16pt"
-                    ),
-                    dataTableOutput(
-                      ns("ingredients_table")
-                    )),
-             column(6,
-                    strong("Recipe Steps Table"),
-                    p(
-                      "The steps to make the recipes you selected will be listed in the table below. Feel free to use the buttons to Copy, Print, or Save the data to PDF, CSV, or to an Excel sheet.",
-                      style = "font-family: 'times'; font-si16pt"
-                    ),
-                    dataTableOutput(
-                      ns("steps_table")
-                    )))
+    fluidRow(
+      column(
+        6,
+        strong("Ingredients Needed Table"),
+        p(
+          "The ingredients to make the recipes you selected will be listed in the table below. Use the buttons to Copy, Print, or Save the data to PDF, CSV, or to an Excel sheet.",
+          style = "font-family: 'times'; font-si16pt"
+        ),
+        dataTableOutput(ns("ingredients_table"))
+      ),
+      column(
+        6,
+        strong("Recipe Steps Table"),
+        p(
+          "The steps to make the recipes you selected will be listed in the table below. Feel free to use the buttons to Copy, Print, or Save the data to PDF, CSV, or to an Excel sheet.",
+          style = "font-family: 'times'; font-si16pt"
+        ),
+        dataTableOutput(ns("steps_table"))
+      )
+    )
     # Output: A selector to show you which dessert type you selected
     # This will eventually either be deleted or modified ----
     # The table that outputs the ingredients to make the recipes
@@ -80,7 +88,7 @@ ingredients_needed_server <-
         # check boxes are linked up properly to the backend - pls fix
         # output$recipe_type_sel <- renderText({
         #   recipe_type <- rec_options()$recipe_options
-        #   
+        #
         #   paste0("You selected ", recipe_type)
         # })
         
@@ -134,7 +142,8 @@ ingredients_needed_server <-
             recipe_name_data <- recipe_name_data_filt %>%
               # filter to the recipe type associated with the recipe that was submitted
               dplyr::filter(recipe_type %in% recipe_type_selected,
-                            ingredient  %in% ings_needed,) %>%
+                            ingredient  %in% ings_needed,
+              ) %>%
               # Only select the unique identifiers for the recipes
               dplyr::select(recipe_submitter,
                             recipe_name,
@@ -216,12 +225,18 @@ ingredients_needed_server <-
             dplyr::select(sweetie_scale, servings_total)
           
           par(mar = c(4, 4, 1, .1))
-         plot(dataset, main = "Sweetness x Servings Table", xlab = "Sweetness Scale", ylab = "Servings Made", bg = "pink", col = "blue", pch = 23, cex = 2, font.lab = 2)
+          plot(
+            dataset,
+            main = "Sweetness x Servings Table",
+            xlab = "Sweetness Scale",
+            ylab = "Servings Made",
+            font.lab = 2
+          )
           
-         
-         if (length(selected))
-            points(dataset[selected, , drop = FALSE])
-        
+          
+          if (length(selected))
+            points(dataset[selected, , drop = FALSE], pch = 19, cex = 2, col = "pink", bg = "pink")
+          
         })
         
         ######################################### 2nd DATA TABLE ##############################
@@ -245,7 +260,7 @@ ingredients_needed_server <-
           
           # Selecting all of the ingredients associated with the recipes that were submitted
           ingreds_needed <<-
-            ingreds_needed[ingreds_needed$recipe_name %in% project, ]
+            ingreds_needed[ingreds_needed$recipe_name %in% project,]
           
           # Pull in the data and don't allow searching
           DT::datatable(
@@ -301,7 +316,7 @@ ingredients_needed_server <-
           
           # Selecting all of the steps associated with the recipes that were submitted
           steps_needed <-
-            steps_needed[steps_needed$recipe_name %in% project, ]
+            steps_needed[steps_needed$recipe_name %in% project,]
           
           # Pull in the data and take out filtering ability
           DT::datatable(

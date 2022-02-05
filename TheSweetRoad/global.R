@@ -40,6 +40,7 @@ require(rmarkdown)
 require(formattable)
 require(shinydashboard)
 require(plotly)
+require(shinyWidgets)
 
 # The name of the recipe submitter
 recipe_submitter = "Enter your name"
