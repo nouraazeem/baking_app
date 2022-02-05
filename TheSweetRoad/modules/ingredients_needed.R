@@ -1,17 +1,30 @@
-## This will be for the first tab that shows you the options available
+#' The Ingredients Needed script is where we narrow down the actual recipes we have on hand and use the user inputs
+#' from the recipe side panel in order to narrow down the recipes based on what the user specified
+#' 
+#'
+#' @dataset this reactive dataframe we make sure all of the user input checks are enforced in the database and create
+#' the functionality that helps us narrow down our options
+#' @recipe_table the table that lists the name, recipe type, sweetness amount, and the servings that the recipe makes
+#' @sweetness_servings_plot the plot that compares the sweetness x the servings made of the recipes. This plot is super
+#' cutie because when you select on a row in the datatable you can see which dot on the plot the recipe is and how it 
+#' compares to the other recipes
+#' @ingredients_table this table is rendered when the user selects rows in the @recipe_table and shows the corresponding 
+#' ingredients needed for the recipe
+#' @steps_table this table is rendered when the user selects rows in the @recipe_table and shows the steps needed for the 
+#' recipes
 
-# metric module ----
+
+# ingredients needed module ----
 ingredients_needed_ui <- function(id) {
   ns <- NS(id)
-  
+
   tagList(
+    br(),
+    # Refresh button to update the data on hand with any new data
+    column(12, actionButton(inputId = ns("refresh"), label = "Refresh Recipe Data"), align = "right"),
     fluidRow(
       column(
         7,
-        #style='margin-bottom:30px;border:1px solid; padding: 10px;',
-        #style = 'border-right: 1px solid',
-        # The recipe table that can be toggled by the side panel choices (recipe type, etc.)
-        br(),
         p("Welcome to the Sweet Road Recipe Generator!", style = "text-align: center; font-weight: bolder"),
         p("Instructions:", style = "font-weight: bolder"),
         strong("Step 1"),
@@ -43,6 +56,7 @@ ingredients_needed_ui <- function(id) {
       column(5,
              br(),
              plotOutput(
+               # The plot that shows us sweetness x servings in a plot
                ns('sweetness_servings_plot'), height = 350
              ))
     ),
@@ -56,6 +70,7 @@ ingredients_needed_ui <- function(id) {
           "The ingredients to make the recipes you selected will be listed in the table below. Use the buttons to Copy, Print, or Save the data to PDF, CSV, or to an Excel sheet.",
           style = "font-family: 'times'; font-si16pt"
         ),
+        # The data table that lists out ingredients needed for the recipe
         dataTableOutput(ns("ingredients_table"))
       ),
       column(
@@ -65,13 +80,10 @@ ingredients_needed_ui <- function(id) {
           "The steps to make the recipes you selected will be listed in the table below. Feel free to use the buttons to Copy, Print, or Save the data to PDF, CSV, or to an Excel sheet.",
           style = "font-family: 'times'; font-si16pt"
         ),
+        # The data table with the steps to make the recipe
         dataTableOutput(ns("steps_table"))
       )
     )
-    # Output: A selector to show you which dessert type you selected
-    # This will eventually either be deleted or modified ----
-    # The table that outputs the ingredients to make the recipes
-    # The table that outputs the steps to make the recipes
   )
 }
 
@@ -84,13 +96,19 @@ ingredients_needed_server <-
       function(input, output, session) {
         ns <- session$ns
         
-        # This code with be modified in the future it is currently here just to make sure the recipe
-        # check boxes are linked up properly to the backend - pls fix
-        # output$recipe_type_sel <- renderText({
-        #   recipe_type <- rec_options()$recipe_options
-        #
-        #   paste0("You selected ", recipe_type)
-        # })
+        # When the refresh button is called, refresh the database and pull all of the 
+        # new data
+        observeEvent(input$refresh, {
+          ingredients_table <-
+            '"nouraazeem/baking_recipes"."ingredients_needed"'
+          ins_query <- sprintf("SELECT * FROM %s", ingredients_table)
+          ingredients_data <- dbGetQuery(con, ins_query)
+          
+          steps_table <-
+            '"nouraazeem/baking_recipes"."steps_needed"'
+          steps_query <- sprintf("SELECT * FROM %s", steps_table)
+          steps_data <- dbGetQuery(con, steps_query)
+        })
         
         # Creating the data table that will interact with the recipe side panel and allow users to
         # see which recipes match up with the selected user inputs
@@ -99,7 +117,7 @@ ingredients_needed_server <-
           # Pulling in the recipe type (cake, cake pop, pie or tart, etc.)
           recipe_type_selected <- rec_options()$recipe_options
           # Pulling in the sweetness scale values (1-5)
-          sweetie_scale <- rec_options()$sweet_scale
+          sweetie_scale_selected <- rec_options()$sweet_scale
           # Pulling in the ingredients needed for the recipe (butter, etc.)
           ings_needed <-
             stringr::str_to_title(gsub("_", " ", rec_options()$ings))
@@ -109,7 +127,7 @@ ingredients_needed_server <-
           # Pulling in how many servings the dessert makes
           servings_made <- rec_options()$servings_made
           
-          # PCleaning up the names of our inputs
+          # Cleaning up the names of our inputs
           recipe_name_data_filt <- ingredients_data %>%
             dplyr::mutate(
               recipe_submitter = stringr::str_to_title(gsub("_", " ", recipe_submitter)),
@@ -128,7 +146,8 @@ ingredients_needed_server <-
               dplyr::filter(
                 recipe_type %in% recipe_type_selected,
                 ingredient  %in% ings_needed,
-                recipe_submitter %in% recipe_submitter_selected
+                recipe_submitter %in% recipe_submitter_selected,
+                sweetie_scale >= sweetie_scale_selected
               ) %>%
               # Only select the unique identifiers for the recipes
               dplyr::select(recipe_submitter,
@@ -143,6 +162,7 @@ ingredients_needed_server <-
               # filter to the recipe type associated with the recipe that was submitted
               dplyr::filter(recipe_type %in% recipe_type_selected,
                             ingredient  %in% ings_needed,
+                            sweetie_scale >= sweetie_scale_selected
               ) %>%
               # Only select the unique identifiers for the recipes
               dplyr::select(recipe_submitter,
@@ -157,7 +177,8 @@ ingredients_needed_server <-
               # filter to the user inputs
               dplyr::filter(
                 ingredient  %in% ings_needed,
-                recipe_submitter %in% recipe_submitter_selected
+                recipe_submitter %in% recipe_submitter_selected,
+                sweetie_scale >= sweetie_scale_selected
               ) %>%
               # select only the unique identifiers
               dplyr::select(recipe_submitter,
@@ -170,7 +191,9 @@ ingredients_needed_server <-
           } else {
             # Or else only filter the ingredients
             recipe_name_data <- recipe_name_data_filt   %>%
-              dplyr::filter(ingredient %in% ings_needed) %>%
+              dplyr::filter(ingredient %in% ings_needed,
+                            sweetie_scale >= sweetie_scale_selected
+              ) %>%
               # select only the unique identifiers for the recipe
               dplyr::select(recipe_submitter,
                             recipe_name,
@@ -182,8 +205,6 @@ ingredients_needed_server <-
           recipe_name_data <- recipe_name_data %>%
             # Final data manipulation to make the recipe type legible
             dplyr::mutate(recipe_type = stringr::str_to_title(gsub("_", " ", recipe_type)))
-          
-          
         })
         
         ######################################### 1st DATA TABLE ##############################
@@ -224,16 +245,17 @@ ingredients_needed_server <-
           dataset <- dataset() %>%
             dplyr::select(sweetie_scale, servings_total)
           
-          par(mar = c(4, 4, 1, .1))
+          #par(mar = c(4, 4, 1, .1))
           plot(
             dataset,
             main = "Sweetness x Servings Table",
             xlab = "Sweetness Scale",
             ylab = "Servings Made",
-            font.lab = 2
+            font.lab = 2,
+            xlim = c(1,5),
+            ylim = c(1,25)
           )
-          
-          
+
           if (length(selected))
             points(dataset[selected, , drop = FALSE], pch = 19, cex = 2, col = "pink", bg = "pink")
           

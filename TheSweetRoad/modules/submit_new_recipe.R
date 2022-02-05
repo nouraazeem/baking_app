@@ -1,9 +1,10 @@
-# This creates new recipe
-## This will be for the first tab that shows you the options available
-css <- "
-.handsontable.listbox td {
-  background: black;
-}"
+#' This is the code for the Submit New Recipe tab where users can add in any recipes they created and saves their
+#' new recipes to my remote database
+#'
+#' @submit_new_name_hot the handsontable (HOT) that allows users to submit their personal informtion as it pertains
+#' to the recipe that they submitted
+#' @submit_new_ing_hot the HOT that allows users to enter the ingredients + quantities needed to create a new recipe
+
 
 # metric module ----
 submit_new_recipe_ui <- function(id) {
@@ -27,9 +28,8 @@ submit_new_recipe_ui <- function(id) {
       "recipe), the level of sweetness of the recipe (on a scale of 1-5, how sweet is your recipe?), and the number of servings",
       " that this recipe makes..", style = "font-family: 'times'; font-si16pt"
     ),
+    # handsontable to submit your personal information
     rHandsontableOutput(ns("submit_new_name_hot")),
-    #tags$style(type = "text/css", "#submit_new_name_hot th {font-weight:bold;}"),
-    tags$head(tags$style(HTML(css))),
     br(),
     fluidRow(
     column(6,
@@ -177,7 +177,6 @@ submit_new_recipe_server <- function(id, input, output, session) {
                    # Create the initial df that will host the ingredients needed for the recipe
                    # Enter the amount of the ingredient needed
                    
-                   
                    rhandsontable(
                      ingredients_df,
                      rowHeaders = NULL,
@@ -189,7 +188,6 @@ submit_new_recipe_server <- function(id, input, output, session) {
                      )
                    ) %>%
                      # Allow users to edit the data
-                     # hot_context_menu(allowRowEdit = TRUE) %>%
                      # Specify column width
                      hot_col(1, colWidths = 150,  valign = 'htCenter') %>%
                      hot_col(2, colWidths = 200) %>%
@@ -363,6 +361,7 @@ submit_new_recipe_server <- function(id, input, output, session) {
                    
                  })
                  
+
                  
                })
 }
